@@ -45,15 +45,18 @@ jobs:
           echo "RDP_CREDS=User: RDP | Password: $password" >> $env:GITHUB_ENV
           if (-not (Get-LocalUser -Name "RDP")) { Write-Error "User creation failed"; exit 1 }
 
-      - name: Install Cursor
+            - name: Install Cursor
         run: |
-          $url = "https://downloader.cursor.sh/windows/nsis/x64"
+          $url = "https://api2.cursor.sh/updates/download-latest?os=win32&arch=x64&releaseTrack=stable"
           $out = "$env:TEMP\CursorSetup.exe"
           Write-Host "Downloading Cursor..."
-          Invoke-WebRequest -Uri $url -OutFile $out -UseBasicParsing
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          $client = New-Object System.Net.WebClient
+          $client.Headers.Add("User-Agent", "Mozilla/5.0")
+          $client.DownloadFile($url, $out)
           Write-Host "Installing Cursor (silent)..."
           Start-Process -FilePath $out -ArgumentList "/S" -Wait
-          Remove-Item $out -Force
+          Remove-Item $out -Force -ErrorAction SilentlyContinue
           Write-Host "Cursor installed."
 
       - name: Install DeepSeek Desktop
@@ -61,11 +64,15 @@ jobs:
           $url = "https://github.com/doxdk/deepseek-desktop/releases/download/RELEASE/DeepSeek.Setup.1.0.0.exe"
           $out = "$env:TEMP\DeepSeekSetup.exe"
           Write-Host "Downloading DeepSeek Desktop..."
-          Invoke-WebRequest -Uri $url -OutFile $out -UseBasicParsing
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          $client = New-Object System.Net.WebClient
+          $client.Headers.Add("User-Agent", "Mozilla/5.0")
+          $client.DownloadFile($url, $out)
           Write-Host "Installing DeepSeek Desktop (silent)..."
           Start-Process -FilePath $out -ArgumentList "/S" -Wait
-          Remove-Item $out -Force
+          Remove-Item $out -Force -ErrorAction SilentlyContinue
           Write-Host "DeepSeek Desktop installed."
+
 
       - name: Install Tailscale
         run: |
