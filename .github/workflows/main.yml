@@ -63,7 +63,7 @@ jobs:
               exit 1
           }
 
-            - name: Install Cursor
+      - name: Install Cursor
         run: |
           $url = "https://api2.cursor.sh/updates/download-latest?os=win32&arch=x64&releaseTrack=stable"
           $out = "$env:TEMP\CursorSetup.exe"
